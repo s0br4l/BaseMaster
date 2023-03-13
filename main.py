@@ -5,23 +5,37 @@ import statsmodels.api as sm
 
 st.title('teste')
 bar = st.sidebar
-opcoes = list(range(1, 193))
-escolhas = bar.multiselect('seleciona', opcoes)
-opcoes2 = []
-for num in opcoes:
-    if num not in escolhas:
-        opcoes2.append(num)
-escolhas2 = bar.multiselect('seleciona2', opcoes2)
-selecionados = pd.DataFrame()
-selecionados2 = pd.DataFrame()
-selecionados_nao = pd.DataFrame()
+# opcoes = list(range(1, 193))
+# escolhas = bar.multiselect('Grupo 1', opcoes)
+# opcoes2 = []
+
+# for num in opcoes:
+#     if num not in escolhas:
+#         opcoes2.append(num)
+
+# escolhas2 = bar.multiselect('Grupo 2', opcoes2)
+
+freq_orig = pd.read_excel('frequencias_sessoes_22.xlsx').dropna()
 base_orig = pd.read_excel('mastervida_pa_db_19_22_.xlsx').dropna()
 base = base_orig.loc[base_orig['ano'] == 2022]
 
-escolhas_nao = []
-for num in opcoes2:
-    if num not in escolhas2:
-        escolhas_nao.append(num)
+freq_mais = freq_orig.loc[freq_orig['group_freq'] == 'mais']['nome_id']
+freq_med = freq_orig.loc[freq_orig['group_freq'] == 'med']['nome_id']
+freq_menos = freq_orig.loc[freq_orig['group_freq'] == 'menos']['nome_id']
+
+escolhas = list(freq_mais)
+escolhas2 = list(freq_med)
+escolhas_nao = list(freq_menos)
+
+
+selecionados = pd.DataFrame()
+selecionados2 = pd.DataFrame()
+selecionados_nao = pd.DataFrame()
+
+# escolhas_nao = []
+# for num in opcoes2:
+#     if num not in escolhas2:
+#         escolhas_nao.append(num)
 
 for valor in escolhas:
     escolhido_valor = base.loc[base['nome_id'] == valor]
@@ -36,7 +50,7 @@ for valor in escolhas_nao:
     selecionados_nao = pd.concat([selecionados_nao, escolhido_valor_nao], ignore_index=True)
 
 # listadescb = listaids1.groupby('nome_id').mês.value_counts()
-listadescb = base.df_pas_.value_counts()
+listadescb = base.describe()
 st.dataframe(listadescb)
 
 st.dataframe(base)
@@ -46,6 +60,7 @@ if not selecionados.empty:
     # st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     fig2 = px.scatter(selecionados, x='data', y='pre_pas_', trendline="ols")
+    fig2.update_layout(scattermode="group")
     st.plotly_chart(fig2, theme="streamlit", use_container_width=True)
     # st.dataframe(selecionados)
 
